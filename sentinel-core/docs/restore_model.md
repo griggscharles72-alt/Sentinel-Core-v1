@@ -1,35 +1,28 @@
-# Sentinel Core v1 — Runbook
+# Sentinel Core v1 — Restore Model
 
 ## Purpose
 
-This runbook defines the practical operator workflow for Sentinel Core v1.
+The restore model defines how Sentinel Core moves from detected drift toward approved repair.
 
-It explains:
+It is intentionally narrow.
 
-- how to prepare the repo
-- how to validate the environment
-- how to create a baseline
-- how to run checks
-- how to generate reports
-- how to plan restore
-- how to apply restore
-- how to handle intentional protected changes
+Restore in v1 is not a general healing system.  
+It is a controlled, explicit, local restore process for supported objects only.
 
-This is the operational guide for using the layer safely.
+The restore model answers:
+
+- what can be restored
+- what cannot be restored
+- where restore truth comes from
+- when restore is allowed
+- how restore is applied
+- how restore results are recorded
 
 ---
 
-## Core Principle
+## Core Restore Equation
 
-Sentinel Core works by comparing approved baseline state against live observed state.
-
-It does not decide intent.
-
-It does not guess whether a change was authorized.
-
-It uses explicit baseline approval.
-
-So the practical rule is:
+Sentinel first detects drift:
 
 ```text
-approved baseline = trusted state
+D(Xt, X*) -> Δ
