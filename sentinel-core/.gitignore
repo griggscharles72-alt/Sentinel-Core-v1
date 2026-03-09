@@ -1,0 +1,88 @@
+# =========================================================
+# Sentinel Core v1
+# File: .gitignore
+# Purpose:
+#   Ignore runtime state, generated artifacts, caches,
+#   and local environment clutter while preserving the
+#   actual source/config/docs structure in git.
+# =========================================================
+
+# ---------------------------------------------------------
+# Python
+# ---------------------------------------------------------
+__pycache__/
+*.py[cod]
+*$py.class
+
+# Build / packaging
+build/
+dist/
+*.egg-info/
+.eggs/
+
+# Virtual environments
+.venv/
+venv/
+env/
+
+# Tool caches
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+.coverage
+coverage.xml
+htmlcov/
+
+# Editor / OS noise
+.vscode/
+.idea/
+.DS_Store
+Thumbs.db
+
+# ---------------------------------------------------------
+# Sentinel runtime data
+# ---------------------------------------------------------
+
+# SQLite runtime database
+/data/db/*.db
+/data/db/*.sqlite
+/data/db/*.sqlite3
+
+# Logs
+/data/logs/*.log
+/data/logs/*.out
+/data/logs/*.err
+
+# Generated reports
+/data/reports/*.txt
+/data/reports/*.json
+
+# Generated snapshots
+/data/snapshots/*.json
+
+# Generated baseline manifests
+/data/baselines/manifests/*.json
+
+# Optional local baseline file store contents
+# Keep the directory itself, but not its generated contents
+/data/baselines/files/**
+
+# ---------------------------------------------------------
+# Keep directory structure
+# ---------------------------------------------------------
+!/data/
+!/data/db/
+!/data/logs/
+!/data/reports/
+!/data/snapshots/
+!/data/baselines/
+!/data/baselines/files/
+!/data/baselines/manifests/
+
+# Optional placeholder files
+!/data/db/.gitkeep
+!/data/logs/.gitkeep
+!/data/reports/.gitkeep
+!/data/snapshots/.gitkeep
+!/data/baselines/files/.gitkeep
+!/data/baselines/manifests/.gitkeep
