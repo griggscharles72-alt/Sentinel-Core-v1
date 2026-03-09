@@ -14,10 +14,10 @@ Purpose:
 
 This module is responsible for:
 
-    - Parsing CLI arguments
-    - Routing commands to the correct module handlers
-    - Returning stable exit codes
-    - Keeping the command ladder deterministic
+    - parsing CLI arguments
+    - routing commands to the correct module handlers
+    - returning stable exit codes
+    - keeping the command ladder deterministic
 
 Supported commands:
 
@@ -29,11 +29,12 @@ Supported commands:
     - restore-apply
     - all
 
-Notes:
-    - Early versions may use placeholder handlers for commands
-      that are not implemented yet.
-    - The 'doctor' command is expected to be the first fully
-      wired operation.
+Design notes:
+
+    - explicit command map only
+    - no hidden behavior
+    - command chaining for 'all' is fixed:
+        doctor -> check -> report
 """
 
 from __future__ import annotations
@@ -43,16 +44,23 @@ import sys
 from typing import Callable, Dict
 
 from sentinel_core import __version__
-from sentinel_core import doctor_env
+from sentinel_core.baseline_build import run_baseline
+from sentinel_core.doctor_env import run_doctor
+from sentinel_core.drift_check import (
+    EXIT_DRIFT_DETECTED,
+    EXIT_NO_BASELINE,
+    EXIT_OK,
+    EXIT_RUNTIME_ERROR,
+    EXIT_SEVERE_DRIFT,
+    run_check,
+)
+from sentinel_core.report_summary import run_report
+from sentinel_core.restore_apply import run_restore_apply
+from sentinel_core.restore_decide import run_restore_plan
 
 
-EXIT_OK = 0
-EXIT_RUNTIME_ERROR = 1
 EXIT_CONFIG_ERROR = 2
 EXIT_DEPENDENCY_ERROR = 3
-EXIT_DRIFT_DETECTED = 10
-EXIT_SEVERE_DRIFT = 11
-EXIT_NO_BASELINE = 12
 EXIT_RESTORE_PARTIAL = 20
 EXIT_RESTORE_FAILED = 21
 
@@ -116,71 +124,69 @@ def command_doctor() -> int:
     """
     Run environment validation.
     """
-    return doctor_env.run_doctor()
+    return run_doctor()
 
 
 def command_baseline() -> int:
     """
-    Placeholder baseline command until implementation is added.
+    Create or refresh the active baseline.
     """
-    print("INFO: baseline command is not implemented yet.")
-    return EXIT_OK
+    return run_baseline()
 
 
 def command_check() -> int:
     """
-    Placeholder check command until implementation is added.
+    Run drift detection against the active baseline.
     """
-    print("INFO: check command is not implemented yet.")
-    return EXIT_OK
+    return run_check()
 
 
 def command_report() -> int:
     """
-    Placeholder report command until implementation is added.
+    Generate reports from the latest check run.
     """
-    print("INFO: report command is not implemented yet.")
-    return EXIT_OK
+    return run_report()
 
 
 def command_restore_plan() -> int:
     """
-    Placeholder restore-plan command until implementation is added.
+    Generate a restore plan from the latest drift state.
     """
-    print("INFO: restore-plan command is not implemented yet.")
-    return EXIT_OK
+    return run_restore_plan()
 
 
 def command_restore_apply() -> int:
     """
-    Placeholder restore-apply command until implementation is added.
+    Apply the latest restore plan.
     """
-    print("INFO: restore-apply command is not implemented yet.")
-    return EXIT_OK
+    return run_restore_apply()
 
 
 def command_all() -> int:
     """
-    Run the default chained workflow.
+    Run the fixed chain:
 
-    Current behavior:
         doctor -> check -> report
 
-    In early versions, check and report may still be placeholders.
+    Behavior:
+        - if doctor fails, stop immediately
+        - if check returns drift, still run report
+        - if report fails, return report failure
+        - final return preserves drift signal when report succeeds
     """
-    result = command_doctor()
-    if result != EXIT_OK:
-        return result
+    doctor_result = command_doctor()
+    if doctor_result != EXIT_OK:
+        return doctor_result
 
-    result = command_check()
-    if result not in (EXIT_OK, EXIT_DRIFT_DETECTED, EXIT_SEVERE_DRIFT):
-        return result
+    check_result = command_check()
+    if check_result not in (EXIT_OK, EXIT_DRIFT_DETECTED, EXIT_SEVERE_DRIFT):
+        return check_result
 
     report_result = command_report()
     if report_result != EXIT_OK:
         return report_result
 
-    return result
+    return check_result
 
 
 def get_command_map() -> Dict[str, Callable[[], int]]:
@@ -232,15 +238,13 @@ if __name__ == "__main__":
 # Save as:
 #   sentinel-core/src/sentinel_core/main_wrapper.py
 #
-# This file is intended to work with:
-#   sentinel-core/bin/sentinel-core
-#
-# Current status:
-#   - doctor is the first real wired command
-#   - all other commands are safe placeholders for now
+# Current role:
+#   - routes all Sentinel Core commands
+#   - wires doctor, baseline, check, report, restore-plan, restore-apply
+#   - supports the fixed 'all' execution chain
 #
 # Next required file:
-#   sentinel-core/src/sentinel_core/doctor_env.py
+#   sentinel-core/scripts/bootstrap.sh
 #
 # Signature:
 #   Sentinel Core v1
