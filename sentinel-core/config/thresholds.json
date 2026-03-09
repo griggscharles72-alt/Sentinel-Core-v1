@@ -1,0 +1,8 @@
+{
+  "high_drift_count_alert": 1,
+  "medium_drift_count_alert": 3,
+  "treat_missing_protected_file_as_high": true,
+  "treat_inactive_expected_service_as_high": true,
+  "treat_missing_required_package_as_high": true,
+  "treat_missing_watched_directory_as_high": true
+}
