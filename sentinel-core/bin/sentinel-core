@@ -1,0 +1,40 @@
+#!/usr/bin/env bash
+# =========================================================
+# Sentinel Core v1
+# File: bin/sentinel-core
+# Purpose:
+#   Stable CLI entrypoint for Sentinel Core.
+#   Runs the Python module from the repo root so the tool
+#   works without requiring installation into site-packages.
+#
+# Behavior:
+#   - Resolves repo root relative to this script
+#   - Exports PYTHONPATH to include ./src
+#   - Executes sentinel_core.main_wrapper
+#
+# Notes:
+#   - Intended to be chmod +x
+#   - Should be run from anywhere
+#   - Keeps repo location-independent
+# =========================================================
+
+set -u
+set -o pipefail
+
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+REPO_ROOT="$(cd "${SCRIPT_DIR}/.." && pwd)"
+SRC_DIR="${REPO_ROOT}/src"
+
+if [ ! -d "${SRC_DIR}" ]; then
+  printf 'ERROR: src directory not found: %s\n' "${SRC_DIR}" >&2
+  exit 1
+fi
+
+if ! command -v python3 >/dev/null 2>&1; then
+  printf 'ERROR: python3 is not installed or not in PATH.\n' >&2
+  exit 3
+fi
+
+export PYTHONPATH="${SRC_DIR}${PYTHONPATH:+:${PYTHONPATH}}"
+
+exec python3 -m sentinel_core.main_wrapper "$@"
