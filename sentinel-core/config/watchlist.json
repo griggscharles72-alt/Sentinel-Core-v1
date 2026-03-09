@@ -1,0 +1,15 @@
+{
+  "files": [],
+  "directories": [],
+  "services": [],
+  "packages": [
+    {
+      "package_name": "python3",
+      "must_be_installed": true
+    },
+    {
+      "package_name": "sqlite3",
+      "must_be_installed": true
+    }
+  ]
+}
