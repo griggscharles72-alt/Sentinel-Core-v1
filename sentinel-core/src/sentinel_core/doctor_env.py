@@ -14,25 +14,25 @@ Purpose:
 
 This module is responsible for:
 
-    - Verifying required directories can be created or written
-    - Verifying required config files exist and are readable
-    - Verifying required external tools are present
-    - Performing early sanity checks before baseline/check/report work
+    - verifying required directories can be created or written
+    - verifying required config files exist and are readable
+    - verifying required external tools are present
+    - performing early sanity checks before baseline/check/report work
 
 Design notes:
 
-    - Keep this deterministic and boring
-    - Return stable exit codes
-    - Report what failed clearly
-    - Avoid side effects beyond safe directory creation
+    - keep this deterministic and boring
+    - return stable exit codes
+    - report what failed clearly
+    - avoid side effects beyond safe directory creation
 
 Current scope:
 
-    - Validate repo-relative runtime paths
-    - Validate config presence and JSON readability
-    - Validate python3, sha256sum, sqlite3
-    - Validate rsync if restore is enabled
-    - Validate systemctl if service watches exist
+    - validate repo-relative runtime paths
+    - validate config presence and JSON readability
+    - validate python3, sha256sum, sqlite3
+    - validate rsync if restore is enabled
+    - validate systemctl if service watches exist
 
 This is intended to be the first fully wired command.
 """
@@ -210,9 +210,6 @@ def run_doctor() -> int:
     restore_cfg: Dict[str, Any] = {}
     thresholds_cfg: Dict[str, Any] = {}
 
-    # ------------------------------------------------------
-    # Runtime directory checks
-    # ------------------------------------------------------
     for directory in runtime_dirs:
         success, message = _safe_create_directory(directory)
         if success:
@@ -220,9 +217,6 @@ def run_doctor() -> int:
         else:
             runtime_errors.append(message)
 
-    # ------------------------------------------------------
-    # Config file presence + JSON readability
-    # ------------------------------------------------------
     for config_path in config_files:
         if not config_path.exists():
             config_errors.append(f"missing config file: {config_path}")
@@ -252,13 +246,9 @@ def run_doctor() -> int:
         except Exception as exc:
             config_errors.append(f"failed reading config {config_path}: {exc}")
 
-    # thresholds_cfg is loaded for future use; keep reference to avoid dead intent
     if thresholds_cfg:
         _print_ok("thresholds config loaded")
 
-    # ------------------------------------------------------
-    # Required tool checks
-    # ------------------------------------------------------
     required_tools = [
         "python3",
         "sha256sum",
@@ -283,9 +273,6 @@ def run_doctor() -> int:
         else:
             dependency_errors.append("services declared in watchlist but systemctl not found in PATH")
 
-    # ------------------------------------------------------
-    # Exit selection
-    # ------------------------------------------------------
     if config_errors:
         for message in config_errors:
             _print_error(message)
@@ -315,13 +302,13 @@ def run_doctor() -> int:
 #   sentinel-core/src/sentinel_core/main_wrapper.py
 #
 # Current behavior:
-#   - Creates runtime directories if missing
-#   - Validates config files exist and contain JSON objects
-#   - Checks required tool presence
-#   - Returns stable exit codes
+#   - creates runtime directories if missing
+#   - validates config files exist and contain JSON objects
+#   - checks required tool presence
+#   - returns stable exit codes
 #
 # Next required file:
-#   sentinel-core/config/watchlist.json
+#   sentinel-core/src/sentinel_core/schema.py
 #
 # Signature:
 #   Sentinel Core v1
