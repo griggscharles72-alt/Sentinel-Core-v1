@@ -233,7 +233,7 @@ def validate_all_configs(
 #   - raises SchemaValidationError on invalid input
 #
 # Next required file:
-#   sentinel-core/src/sentinel_core/helpers/__init__.py
+#   sentinel-core/src/sentinel_core/__init__.py
 #
 # Signature:
 #   Sentinel Core v1
