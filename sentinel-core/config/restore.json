@@ -1,0 +1,7 @@
+{
+  "enabled": false,
+  "file_restore_backend": "rsync",
+  "service_actions_enabled": false,
+  "package_actions_enabled": false,
+  "require_explicit_apply": true
+}
